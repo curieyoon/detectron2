@@ -18,7 +18,7 @@ COCO model (with correct class names and colors).
 # All coco categories, together with their nice-looking visualization colors
 # It's from https://github.com/cocodataset/panopticapi/blob/master/panoptic_coco_categories.json
 
-# 328 OpenImages-Validation classes with segmentation masks
+# 338 OpenImages-Test classes with segmentation masks
 COCO_CATEGORIES = [
     {"color": [1, 2, 3], "isthing": 1, "id": 1, "name": "Tortoise"},
     {"color": [1, 2, 3], "isthing": 1, "id": 3, "name": "Magpie"},
@@ -103,6 +103,7 @@ COCO_CATEGORIES = [
     {"color": [1, 2, 3], "isthing": 1, "id": 133, "name": "Calculator"},
     {"color": [1, 2, 3], "isthing": 1, "id": 134, "name": "Cocktail"},
     {"color": [1, 2, 3], "isthing": 1, "id": 136, "name": "Box"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 137, "name": "Stapler"},
     {"color": [1, 2, 3], "isthing": 1, "id": 138, "name": "Christmas tree"},
     {"color": [1, 2, 3], "isthing": 1, "id": 139, "name": "Cowboy hat"},
     {"color": [1, 2, 3], "isthing": 1, "id": 141, "name": "Studio couch"},
@@ -113,11 +114,13 @@ COCO_CATEGORIES = [
     {"color": [1, 2, 3], "isthing": 1, "id": 150, "name": "Dice"},
     {"color": [1, 2, 3], "isthing": 1, "id": 151, "name": "Oven"},
     {"color": [1, 2, 3], "isthing": 1, "id": 154, "name": "Couch"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 155, "name": "Cricket ball"},
     {"color": [1, 2, 3], "isthing": 1, "id": 156, "name": "Winter melon"},
     {"color": [1, 2, 3], "isthing": 1, "id": 157, "name": "Spatula"},
     {"color": [1, 2, 3], "isthing": 1, "id": 158, "name": "Whiteboard"},
     {"color": [1, 2, 3], "isthing": 1, "id": 161, "name": "Hat"},
     {"color": [1, 2, 3], "isthing": 1, "id": 162, "name": "Shower"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 163, "name": "Eraser"},
     {"color": [1, 2, 3], "isthing": 1, "id": 164, "name": "Fedora"},
     {"color": [1, 2, 3], "isthing": 1, "id": 165, "name": "Guacamole"},
     {"color": [1, 2, 3], "isthing": 1, "id": 166, "name": "Dagger"},
@@ -161,16 +164,18 @@ COCO_CATEGORIES = [
     {"color": [1, 2, 3], "isthing": 1, "id": 237, "name": "Mixing bowl"},
     {"color": [1, 2, 3], "isthing": 1, "id": 240, "name": "Light switch"},
     {"color": [1, 2, 3], "isthing": 1, "id": 242, "name": "Horse"},
-    {"color": [1, 2, 3], "isthing": 1, "id": 244, "name": "Hammer"},
     {"color": [1, 2, 3], "isthing": 1, "id": 246, "name": "Sofa bed"},
     {"color": [1, 2, 3], "isthing": 1, "id": 247, "name": "Adhesive tape"},
     {"color": [1, 2, 3], "isthing": 1, "id": 251, "name": "Saucer"},
     {"color": [1, 2, 3], "isthing": 1, "id": 252, "name": "Harpsichord"},
     {"color": [1, 2, 3], "isthing": 1, "id": 254, "name": "Heater"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 255, "name": "Harmonica"},
     {"color": [1, 2, 3], "isthing": 1, "id": 256, "name": "Hamster"},
     {"color": [1, 2, 3], "isthing": 1, "id": 259, "name": "Kettle"},
     {"color": [1, 2, 3], "isthing": 1, "id": 262, "name": "Drinking straw"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 264, "name": "Hair dryer"},
     {"color": [1, 2, 3], "isthing": 1, "id": 268, "name": "Food processor"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 272, "name": "Punching bag"},
     {"color": [1, 2, 3], "isthing": 1, "id": 273, "name": "Common fig"},
     {"color": [1, 2, 3], "isthing": 1, "id": 275, "name": "Jaguar (Animal)"},
     {"color": [1, 2, 3], "isthing": 1, "id": 276, "name": "Golf ball"},
@@ -181,6 +186,7 @@ COCO_CATEGORIES = [
     {"color": [1, 2, 3], "isthing": 1, "id": 284, "name": "Koala"},
     {"color": [1, 2, 3], "isthing": 1, "id": 285, "name": "Knife"},
     {"color": [1, 2, 3], "isthing": 1, "id": 286, "name": "Bottle"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 287, "name": "Bottle opener"},
     {"color": [1, 2, 3], "isthing": 1, "id": 288, "name": "Lynx"},
     {"color": [1, 2, 3], "isthing": 1, "id": 290, "name": "Lighthouse"},
     {"color": [1, 2, 3], "isthing": 1, "id": 291, "name": "Dumbbell"},
@@ -202,6 +208,7 @@ COCO_CATEGORIES = [
     {"color": [1, 2, 3], "isthing": 1, "id": 321, "name": "Pencil case"},
     {"color": [1, 2, 3], "isthing": 1, "id": 324, "name": "Briefcase"},
     {"color": [1, 2, 3], "isthing": 1, "id": 325, "name": "Kitchen knife"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 326, "name": "Nail (Construction)"},
     {"color": [1, 2, 3], "isthing": 1, "id": 327, "name": "Tennis ball"},
     {"color": [1, 2, 3], "isthing": 1, "id": 328, "name": "Plastic bag"},
     {"color": [1, 2, 3], "isthing": 1, "id": 330, "name": "Chest of drawers"},
@@ -277,6 +284,8 @@ COCO_CATEGORIES = [
     {"color": [1, 2, 3], "isthing": 1, "id": 449, "name": "Shark"},
     {"color": [1, 2, 3], "isthing": 1, "id": 450, "name": "Candle"},
     {"color": [1, 2, 3], "isthing": 1, "id": 451, "name": "Leopard"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 452, "name": "Axe"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 453, "name": "Hand dryer"},
     {"color": [1, 2, 3], "isthing": 1, "id": 454, "name": "Soap dispenser"},
     {"color": [1, 2, 3], "isthing": 1, "id": 456, "name": "Flower"},
     {"color": [1, 2, 3], "isthing": 1, "id": 457, "name": "Canary"},
@@ -291,13 +300,13 @@ COCO_CATEGORIES = [
     {"color": [1, 2, 3], "isthing": 1, "id": 471, "name": "Bull"},
     {"color": [1, 2, 3], "isthing": 1, "id": 472, "name": "Oyster"},
     {"color": [1, 2, 3], "isthing": 1, "id": 481, "name": "Orange"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 483, "name": "Beaker"},
     {"color": [1, 2, 3], "isthing": 1, "id": 489, "name": "Goose"},
     {"color": [1, 2, 3], "isthing": 1, "id": 490, "name": "Mule"},
     {"color": [1, 2, 3], "isthing": 1, "id": 491, "name": "Swan"},
     {"color": [1, 2, 3], "isthing": 1, "id": 492, "name": "Peach"},
     {"color": [1, 2, 3], "isthing": 1, "id": 494, "name": "Seat belt"},
     {"color": [1, 2, 3], "isthing": 1, "id": 495, "name": "Raccoon"},
-    {"color": [1, 2, 3], "isthing": 1, "id": 496, "name": "Chisel"},
     {"color": [1, 2, 3], "isthing": 1, "id": 499, "name": "Camera"},
     {"color": [1, 2, 3], "isthing": 1, "id": 500, "name": "Squash (Plant)"},
     {"color": [1, 2, 3], "isthing": 1, "id": 501, "name": "Racket"},
@@ -321,12 +330,13 @@ COCO_CATEGORIES = [
     {"color": [1, 2, 3], "isthing": 1, "id": 539, "name": "Corded phone"},
     {"color": [1, 2, 3], "isthing": 1, "id": 541, "name": "Tennis racket"},
     {"color": [1, 2, 3], "isthing": 1, "id": 545, "name": "Dog bed"},
-    {"color": [1, 2, 3], "isthing": 1, "id": 550, "name": "Pressure cooker"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 549, "name": "Facial tissue holder"},
     {"color": [1, 2, 3], "isthing": 1, "id": 553, "name": "Ruler"},
     {"color": [1, 2, 3], "isthing": 1, "id": 554, "name": "Luggage and bags"},
     {"color": [1, 2, 3], "isthing": 1, "id": 556, "name": "Broccoli"},
     {"color": [1, 2, 3], "isthing": 1, "id": 558, "name": "Pastry"},
     {"color": [1, 2, 3], "isthing": 1, "id": 559, "name": "Grapefruit"},
+    {"color": [1, 2, 3], "isthing": 1, "id": 560, "name": "Band-aid"},
     {"color": [1, 2, 3], "isthing": 1, "id": 562, "name": "Bell pepper"},
     {"color": [1, 2, 3], "isthing": 1, "id": 563, "name": "Turkey"},
     {"color": [1, 2, 3], "isthing": 1, "id": 565, "name": "Pomegranate"},
@@ -348,6 +358,7 @@ COCO_CATEGORIES = [
     {"color": [1, 2, 3], "isthing": 1, "id": 595, "name": "Canoe"},
     {"color": [1, 2, 3], "isthing": 1, "id": 596, "name": "Remote control"},
     {"color": [1, 2, 3], "isthing": 1, "id": 598, "name": "Rugby ball"},
+
 
 ]
 
@@ -571,7 +582,7 @@ ADE20K_SEM_SEG_CATEGORIES = [
 def _get_coco_instances_meta():
     thing_ids = [k["id"] for k in COCO_CATEGORIES if k["isthing"] == 1]
     thing_colors = [k["color"] for k in COCO_CATEGORIES if k["isthing"] == 1]
-    assert len(thing_ids) == 328, len(thing_ids)
+    assert len(thing_ids) == 338, len(thing_ids)
     # Mapping from the incontiguous COCO category id to an id in [0, 79]
     thing_dataset_id_to_contiguous_id = {k: i for i, k in enumerate(thing_ids)}
     thing_classes = [k["name"] for k in COCO_CATEGORIES if k["isthing"] == 1]
