@@ -7,6 +7,7 @@ import pprint
 from typing import Any, List, Optional, Tuple, Union
 from fvcore.transforms.transform import Transform, TransformList
 
+
 """
 See "Data Augmentation" tutorial for an overview of the system:
 https://detectron2.readthedocs.io/tutorials/augmentation.html
@@ -260,8 +261,9 @@ class AugmentationList(Augmentation):
         """
         super().__init__()
         self.augs = [_transform_to_aug(x) for x in augs]
+      
 
-    def __call__(self, aug_input) -> Transform:
+    def __call__(self, aug_input) -> TransformList:
         tfms = []
         for x in self.augs:
             tfm = x(aug_input)

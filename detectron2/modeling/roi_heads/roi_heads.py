@@ -61,6 +61,7 @@ def select_foreground_proposals(
         list[Tensor]: N boolean vector, correspond to the selection mask of
             each Instances object. True for selected instances.
     """
+
     assert isinstance(proposals, (list, tuple))
     assert isinstance(proposals[0], Instances)
     assert proposals[0].has("gt_classes")
@@ -69,9 +70,12 @@ def select_foreground_proposals(
     for proposals_per_image in proposals:
         gt_classes = proposals_per_image.gt_classes
         fg_selection_mask = (gt_classes != -1) & (gt_classes != bg_label)
+
+                
         fg_idxs = fg_selection_mask.nonzero().squeeze(1)
         fg_proposals.append(proposals_per_image[fg_idxs])
         fg_selection_masks.append(fg_selection_mask)
+
     return fg_proposals, fg_selection_masks
 
 
@@ -382,6 +386,7 @@ class Res5ROIHeads(ROIHeads):
         self.mask_on = mask_head is not None
         if self.mask_on:
             self.mask_head = mask_head
+
 
     @classmethod
     def from_config(cls, cfg, input_shape):
@@ -833,8 +838,9 @@ class StandardROIHeads(ROIHeads):
         if not self.mask_on:
             return {} if self.training else instances
 
-        if self.training:
+        if self.training: # mask on and training
             # head is only trained on positive proposals.
+
             instances, _ = select_foreground_proposals(instances, self.num_classes)
 
         if self.mask_pooler is not None:
@@ -843,6 +849,7 @@ class StandardROIHeads(ROIHeads):
             features = self.mask_pooler(features, boxes)
         else:
             features = {f: features[f] for f in self.mask_in_features}
+
         return self.mask_head(features, instances)
 
     def _forward_keypoint(self, features: Dict[str, torch.Tensor], instances: List[Instances]):

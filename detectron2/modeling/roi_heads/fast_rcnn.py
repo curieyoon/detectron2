@@ -237,7 +237,7 @@ class FastRCNNOutputLayers(nn.Module):
         num_bbox_reg_classes = 1 if cls_agnostic_bbox_reg else num_classes
         box_dim = len(box2box_transform.weights)
         self.bbox_pred = nn.Linear(input_size, num_bbox_reg_classes * box_dim)
-
+       
         nn.init.normal_(self.cls_score.weight, std=0.01)
         nn.init.normal_(self.bbox_pred.weight, std=0.001)
         for l in [self.cls_score, self.bbox_pred]:
@@ -429,6 +429,7 @@ class FastRCNNOutputLayers(nn.Module):
             gt_classes is a long tensor of shape R, the gt class label of each proposal.
             R shall be the number of proposals.
         """
+
         box_dim = proposal_boxes.shape[1]  # 4 or 5
         # Regression loss is only computed for foreground proposals (those matched to a GT)
         fg_inds = nonzero_tuple((gt_classes >= 0) & (gt_classes < self.num_classes))[0]

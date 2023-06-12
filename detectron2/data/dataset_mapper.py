@@ -80,7 +80,6 @@ class DatasetMapper:
         # fmt: on
         logger = logging.getLogger(__name__)
         mode = "training" if is_train else "inference"
-        logger.info(f"[DatasetMapper] Augmentations used in {mode}: {augmentations}")
 
     @classmethod
     def from_config(cls, cfg, is_train: bool = True):

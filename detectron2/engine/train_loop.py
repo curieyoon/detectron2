@@ -13,6 +13,13 @@ import detectron2.utils.comm as comm
 from detectron2.utils.events import EventStorage, get_event_storage
 from detectron2.utils.logger import _log_api_usage
 
+import random
+
+import matplotlib.pyplot as plt
+import torchshow as ts
+import os
+from PIL import Image
+
 __all__ = ["HookBase", "TrainerBase", "SimpleTrainer", "AMPTrainer"]
 
 
@@ -232,7 +239,7 @@ class SimpleTrainer(TrainerBase):
     or write your own training loop.
     """
 
-    def __init__(self, model, data_loader, optimizer):
+    def __init__(self, model, data_loader, optimizer, maskpath=None):
         """
         Args:
             model: a torch Module. Takes a data from data_loader and returns a
@@ -248,13 +255,15 @@ class SimpleTrainer(TrainerBase):
         If you want your model (or a submodule of it) to behave
         like evaluation during training, you can overwrite its train() method.
         """
-        model.train()
 
         self.model = model
         self.data_loader = data_loader
         # to access the data loader iterator, call `self._data_loader_iter`
         self._data_loader_iter_obj = None
         self.optimizer = optimizer
+
+        self.maskpath = maskpath
+
 
     def run_step(self):
         """
@@ -266,6 +275,10 @@ class SimpleTrainer(TrainerBase):
         If you want to do something with the data, you can wrap the dataloader.
         """
         data = next(self._data_loader_iter)
+        for d in data:
+            d['image'] = d['image'].type(torch.FloatTensor)
+            d['image'].requires_grad = True
+
         data_time = time.perf_counter() - start
 
         """
@@ -275,15 +288,30 @@ class SimpleTrainer(TrainerBase):
         if isinstance(loss_dict, torch.Tensor):
             losses = loss_dict
             loss_dict = {"total_loss": loss_dict}
-        else:
+        else: # here
             losses = sum(loss_dict.values())
-
+        # losses_max_index = losses.argmax()
+        # losses_max = losses[0, losses_max_index]
         """
         If you need to accumulate gradients or do something similar, you can
         wrap the optimizer with your custom `zero_grad()` method.
         """
         self.optimizer.zero_grad()
         losses.backward()
+
+        # save saliency map
+        for d in data:
+            filename = os.path.basename(d['file_name'])
+            saliency, _ = torch.max(d['image'].grad.data.abs(),dim=0)
+
+            saliency -= torch.min(saliency)
+            saliency /= torch.max(saliency)
+            sal = saliency.detach().cpu().numpy()
+
+            Image.fromarray(np.clip(sal*10, 0, 1)*255).convert("L").save(os.path.join(self.maskpath, '{}_10.jpg'.format(filename[:-4])))
+            Image.fromarray(np.clip(sal*30, 0, 1)*255).convert("L").save(os.path.join(self.maskpath, '{}_30.jpg'.format(filename[:-4])))
+         
+           
 
         self._write_metrics(loss_dict, data_time)
 
@@ -378,11 +406,20 @@ class AMPTrainer(SimpleTrainer):
     in the training loop.
     """
 
-    def __init__(self, model, data_loader, optimizer, grad_scaler=None):
+    def __init__(
+        self,
+        model,
+        data_loader,
+        optimizer,
+        grad_scaler=None,
+        precision: torch.dtype = torch.float16,
+        maskpath=None
+    ):
         """
         Args:
             model, data_loader, optimizer: same as in :class:`SimpleTrainer`.
             grad_scaler: torch GradScaler to automatically scale gradients.
+            precision: torch.dtype as the target precision to cast to in computations
         """
         unsupported = "AMPTrainer does not support single-process multi-device training!"
         if isinstance(model, DistributedDataParallel):
@@ -396,6 +433,7 @@ class AMPTrainer(SimpleTrainer):
 
             grad_scaler = GradScaler()
         self.grad_scaler = grad_scaler
+        self.precision = precision
 
     def run_step(self):
         """
@@ -409,7 +447,7 @@ class AMPTrainer(SimpleTrainer):
         data = next(self._data_loader_iter)
         data_time = time.perf_counter() - start
 
-        with autocast():
+        with autocast(dtype=self.precision):
             loss_dict = self.model(data)
             if isinstance(loss_dict, torch.Tensor):
                 losses = loss_dict

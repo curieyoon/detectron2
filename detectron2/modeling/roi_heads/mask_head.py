@@ -48,6 +48,7 @@ def mask_rcnn_loss(pred_mask_logits: torch.Tensor, instances: List[Instances], v
     Returns:
         mask_loss (Tensor): A scalar tensor containing the loss.
     """
+
     cls_agnostic_mask = pred_mask_logits.size(1) == 1
     total_num_masks = pred_mask_logits.size(0)
     mask_side_len = pred_mask_logits.size(2)
@@ -55,6 +56,7 @@ def mask_rcnn_loss(pred_mask_logits: torch.Tensor, instances: List[Instances], v
 
     gt_classes = []
     gt_masks = []
+
     for instances_per_image in instances:
         if len(instances_per_image) == 0:
             continue
@@ -67,6 +69,7 @@ def mask_rcnn_loss(pred_mask_logits: torch.Tensor, instances: List[Instances], v
         ).to(device=pred_mask_logits.device)
         # A tensor of shape (N, M, M), N=#instances in the image; M=mask_side_len
         gt_masks.append(gt_masks_per_image)
+
 
     if len(gt_masks) == 0:
         return pred_mask_logits.sum() * 0
@@ -87,7 +90,7 @@ def mask_rcnn_loss(pred_mask_logits: torch.Tensor, instances: List[Instances], v
         gt_masks_bool = gt_masks > 0.5
     gt_masks = gt_masks.to(dtype=torch.float32)
 
-    # Log the training accuracy (using gt classes and 0.5 threshold)
+    # Log the training accuracy (using gt classes and sigmoid(0.0) == 0.5 threshold)
     mask_incorrect = (pred_mask_logits > 0.0) != gt_masks_bool
     mask_accuracy = 1 - (mask_incorrect.sum().item() / max(mask_incorrect.numel(), 1.0))
     num_positive = gt_masks_bool.sum().item()

@@ -8,7 +8,7 @@ in training / testing. They will not work for everyone, but many users may find 
 The behavior of functions/classes in this file is subject to change,
 since they are meant to represent the "common default behavior" people need in their projects.
 """
-
+from PIL import Image
 import argparse
 import logging
 import os
@@ -294,7 +294,7 @@ class DefaultPredictor:
         self.input_format = cfg.INPUT.FORMAT
         assert self.input_format in ["RGB", "BGR"], self.input_format
 
-    def __call__(self, original_image):
+    def __call__(self, original_image, filename=None):
         """
         Args:
             original_image (np.ndarray): an image of shape (H, W, C) (in BGR order).
@@ -361,10 +361,12 @@ class DefaultTrainer(TrainerBase):
         cfg (CfgNode):
     """
 
-    def __init__(self, cfg):
+    def __init__(self, cfg, n_classes=None, maskpath=None):
         """
         Args:
             cfg (CfgNode):
+            n_classes: number of classes of custom dataset
+            maskpath: directory to save saliency maps
         """
         super().__init__()
         logger = logging.getLogger("detectron2")
@@ -373,13 +375,13 @@ class DefaultTrainer(TrainerBase):
         cfg = DefaultTrainer.auto_scale_workers(cfg, comm.get_world_size())
 
         # Assume these objects must be constructed in this order.
-        model = self.build_model(cfg)
+        model = self.build_model(cfg, n_classes) #  number of classes of OpenImages Dataset
         optimizer = self.build_optimizer(cfg, model)
         data_loader = self.build_train_loader(cfg)
 
         model = create_ddp_model(model, broadcast_buffers=False)
         self._trainer = (AMPTrainer if cfg.SOLVER.AMP.ENABLED else SimpleTrainer)(
-            model, data_loader, optimizer
+            model, data_loader, optimizer, maskpath
         )
 
         self.scheduler = self.build_lr_scheduler(cfg, optimizer)
@@ -503,7 +505,7 @@ class DefaultTrainer(TrainerBase):
         self._trainer.load_state_dict(state_dict["_trainer"])
 
     @classmethod
-    def build_model(cls, cfg):
+    def build_model(cls, cfg, n_classes=None):
         """
         Returns:
             torch.nn.Module:
@@ -514,6 +516,17 @@ class DefaultTrainer(TrainerBase):
         model = build_model(cfg)
         logger = logging.getLogger(__name__)
         logger.info("Model:\n{}".format(model))
+
+        if n_classes:
+            model.roi_heads.box_predictor.bbox_pred = torch.nn.Linear(1024, n_classes*4)
+            model.roi_heads.box_predictor.cls_score = torch.nn.Linear(1024, n_classes+1)
+            model.roi_heads.box_predictor.num_classes = n_classes
+            model.roi_heads.mask_head.predictor = torch.nn.Conv2d(256, n_classes, kernel_size=(1, 1), stride=(1, 1))
+
+            torch.nn.init.normal_(model.roi_heads.mask_head.predictor.weight, std=0.001)
+            torch.nn.init.constant_(model.roi_heads.mask_head.predictor.bias, 0)
+
+        model.to(torch.device(cfg.MODEL.DEVICE))
         return model
 
     @classmethod

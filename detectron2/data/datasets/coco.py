@@ -17,6 +17,8 @@ from detectron2.utils.file_io import PathManager
 
 from .. import DatasetCatalog, MetadataCatalog
 
+import base64
+
 """
 This file contains functions to parse COCO-format annotations into dicts in "Detectron2 format".
 """
@@ -67,6 +69,10 @@ def load_coco_json(json_file, image_root, dataset_name=None, extra_annotation_ke
     json_file = PathManager.get_local_path(json_file)
     with contextlib.redirect_stdout(io.StringIO()):
         coco_api = COCO(json_file)
+
+        # decode segmentation masks for coco api
+        decode_base64_rles(coco_api)
+
     if timer.seconds() > 1:
         logger.info("Loading {} takes {:.2f} seconds.".format(json_file, timer.seconds()))
 
@@ -322,7 +328,6 @@ def convert_to_coco_dict(dataset_name):
     Returns:
         coco_dict: serializable dict in COCO json format
     """
-
     dataset_dicts = DatasetCatalog.get(dataset_name)
     metadata = MetadataCatalog.get(dataset_name)
 
@@ -387,7 +392,7 @@ def convert_to_coco_dict(dataset_name):
                     area = Boxes([bbox_xy]).area()[0].item()
                 else:
                     area = RotatedBoxes([bbox]).area()[0].item()
-
+            
             if "keypoints" in annotation:
                 keypoints = annotation["keypoints"]  # list[int]
                 for idx, v in enumerate(keypoints):
@@ -417,7 +422,7 @@ def convert_to_coco_dict(dataset_name):
                 coco_annotation["keypoints"] = keypoints
                 coco_annotation["num_keypoints"] = num_keypoints
 
-            if "segmentation" in annotation:
+            if "segmentation" in annotation: ##############
                 seg = coco_annotation["segmentation"] = annotation["segmentation"]
                 if isinstance(seg, dict):  # RLE
                     counts = seg["counts"]
@@ -504,6 +509,13 @@ def register_coco_instances(name, metadata, json_file, image_root):
     MetadataCatalog.get(name).set(
         json_file=json_file, image_root=image_root, evaluator_type="coco", **metadata
     )
+
+
+def decode_base64_rles(coco):
+    for ann in coco.dataset['annotations']:
+        segm = ann['segmentation']
+        if type(segm) != list and type(segm['counts']) != list:
+            segm['counts'] = base64.b64decode(segm['counts'])
 
 
 if __name__ == "__main__":

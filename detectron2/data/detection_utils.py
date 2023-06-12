@@ -254,6 +254,19 @@ def transform_proposals(dataset_dict, image_shape, transforms, *, proposal_topk,
         dataset_dict["proposals"] = proposals
 
 
+def get_bbox(annotation):
+    """
+    Get bbox from data
+    Args:
+        annotation (dict): dict of instance annotations for a single instance.
+    Returns:
+        bbox (ndarray): x1, y1, x2, y2 coordinates
+    """
+    # bbox is 1d (per-instance bounding box)
+    bbox = BoxMode.convert(annotation["bbox"], annotation["bbox_mode"], BoxMode.XYXY_ABS)
+    return bbox
+
+
 def transform_instance_annotations(
     annotation, transforms, image_size, *, keypoint_hflip_indices=None
 ):
@@ -395,9 +408,9 @@ def annotations_to_instances(annos, image_size, mask_format="polygon"):
     classes = [int(obj["category_id"]) for obj in annos]
     classes = torch.tensor(classes, dtype=torch.int64)
     target.gt_classes = classes
-
     if len(annos) and "segmentation" in annos[0]:
         segms = [obj["segmentation"] for obj in annos]
+        
         if mask_format == "polygon":
             try:
                 masks = PolygonMasks(segms)
